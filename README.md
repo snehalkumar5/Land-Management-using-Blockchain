@@ -6,4 +6,6 @@ Implemented in solidity.
 ```
 $ truffle develop
 $ truffle migrate
-``` 
+```
+
+Full proposal of system can be found in Paper.pdf 

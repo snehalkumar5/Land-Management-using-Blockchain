@@ -1,0 +1,89 @@
+// Initialisation
+compile
+migrate
+let accounts = await web3.eth.getAccounts();
+let instance = await LandRegistry.deployed();
+
+// Set Government account:
+instance.start({from: accounts[0]});
+
+// Register Validators:
+instance.registerValidator("Rutvij","Aadhar card",{from: accounts[1]});
+instance.registerValidator("Snehal","Driver License",{from: accounts[2]});
+instance.registerValidator("Tathagato","Pan Card",{from: accounts[3]});
+// Duplicate registeration (invalid)
+instance.registerValidator("Jack","valid id",{from: accounts[3]});
+// Validator with invalid id (valid, but will not be approved)
+instance.registerValidator("Mark","Invalid id",{from: accounts[4]});
+
+// Approve Validators:
+instance.approveValidator(1,{from: accounts[0]});
+instance.approveValidator(2,{from: accounts[0]});
+instance.approveValidator(3,{from: accounts[0]});
+// Duplicate Approval
+instance.approveValidator(3,{from: accounts[0]});
+// Approval not coming from owner (invalid)
+instance.approveValidator(4,{from: accounts[1]});
+// Approving invalid id (invalid)
+instance.approveValidator(5,{from: accounts[0]});
+
+// Register Citizens:
+instance.registerCitizen("Jay","Passport",{from: accounts[5]});
+instance.registerCitizen("Ganesh","Driver License",{from: accounts[6]});
+// Validator registering as citizen (invalid)
+instance.registerCitizen("Tathagato","Pan Card",{from: accounts[3]});
+
+// Endorse Citizens:
+instance.endorseCitizen(1000001,{from: accounts[1]});
+instance.endorseCitizen(1000002,{from: accounts[2]});
+
+// Register Properties:
+web3.eth.getBalance(accounts[5])
+instance.registerProperty("address1","Electricity bill",{from: accounts[5],value: 25});
+web3.eth.getBalance(accounts[5])
+instance.registerProperty("address2","Electricity bill",{from: accounts[5],value: 25});
+web3.eth.getBalance(accounts[5])
+web3.eth.getBalance(accounts[6])
+instance.registerProperty("address3","Electricity bill",{from: accounts[6],value: 30});
+web3.eth.getBalance(accounts[6])
+// Unendorsed citizen (invalid)
+web3.eth.getBalance(accounts[7])
+instance.registerProperty("address4","Electricity bill",{from: accounts[7],value: 25});
+web3.eth.getBalance(accounts[7])
+// Insufficient Fees (invalid)
+web3.eth.getBalance(accounts[6])
+instance.registerProperty("address5","Electricity bill",{from: accounts[6],value: 20});
+web3.eth.getBalance(accounts[6])
+
+// Endorse Registration Transaction:
+instance.endorseTransaction(1,{from: accounts[1]});
+instance.endorseTransaction(2,{from: accounts[1]});
+instance.endorseTransaction(2,{from: accounts[2]});
+instance.endorseTransaction(3,{from: accounts[2]});
+instance.endorseTransaction(3,{from: accounts[3]});
+instance.endorseTransaction(1,{from: accounts[3]});
+// Endorsement by unregistered validator (invalid)
+instance.endorseTransaction(1,{from: accounts[4]});
+// Endorsing already endorsed transaction (invalid)
+instance.endorseTransaction(1,{from: accounts[2]});
+
+// Sell Property:
+instance.SellProperty(1,1000002,"valid proof",10000,{from: accounts[5],value: 25});
+instance.SellProperty(3,1000001,"valid proof",30000,{from: accounts[6],value: 30});
+// Sale not by owner
+instance.SellProperty(2,1000002,"valid proof",30000,{from: accounts[6],value: 30});
+
+// Confirm Purchase:
+instance.ConfirmBuy(4,{from: accounts[6]});
+instance.ConfirmBuy(5,{from: accounts[5]});
+
+// Endorse Sale Transaction:
+instance.endorseTransaction(4,{from: accounts[2]});
+instance.endorseTransaction(5,{from: accounts[2]});
+instance.endorseTransaction(4,{from: accounts[3]});
+instance.endorseTransaction(5,{from: accounts[1]});
+
+// Get property history:
+instance.showPastOwnership(1);
+instance.showPastOwnership(2);
+instance.showPastOwnership(3);
